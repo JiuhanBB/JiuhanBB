@@ -1,8 +1,38 @@
 {
-  "categories": ["随笔", "Web", "逆向", "Android"],
+  "categories": [
+    "随笔",
+    "Web",
+    "逆向",
+    "Android"
+  ],
   "posts": [
-    {"id":"hello-blog","title":"欢迎来到我的秘密基地","summary":"为什么建立这个博客，以及这里以后会出现什么。","category":"随笔","date":"2026-07-29"},
-    {"id":"runtime-evidence","title":"用运行时证据缩短逆向路径","summary":"先观察真实数据流，再决定需要精读的函数。","category":"逆向","date":"2026-07-24"},
-    {"id":"android-jni","title":"Android JNI 问题的分层排查清单","summary":"从加载、符号、签名到线程上下文定位 native 崩溃。","category":"Android","date":"2026-07-18"}
+    {
+      "id": "hello-blog",
+      "title": "欢迎来到我的秘密基地",
+      "summary": "为什么建立这个博客，以及这里以后会出现什么。",
+      "category": "随笔",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "post-1785311973861",
+      "title": "123",
+      "summary": "123",
+      "category": "随笔",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "runtime-evidence",
+      "title": "用运行时证据缩短逆向路径",
+      "summary": "先观察真实数据流，再决定需要精读的函数。",
+      "category": "逆向",
+      "date": "2026-07-24"
+    },
+    {
+      "id": "android-jni",
+      "title": "Android JNI 问题的分层排查清单",
+      "summary": "从加载、符号、签名到线程上下文定位 native 崩溃。",
+      "category": "Android",
+      "date": "2026-07-18"
+    }
   ]
 }
