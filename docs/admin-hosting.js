@@ -1,12 +1,14 @@
-const hostedLinkButton=document.querySelector("#insert-image-url");
-hostedLinkButton.onclick=()=>{
-  let url=prompt("粘贴图床返回的地址，例如 /file/xxx.png 或完整 URL")?.trim();
-  if(!url)return;
-  if(url.startsWith("/"))url=`https://image.baobao123.dpdns.org${url}`;
-  if(!/^https?:\/\//i.test(url)){toast("链接格式不正确");return}
-  const filename=decodeURIComponent(url.split("/").pop().split("?")[0]||"托管文件");
-  const label=prompt("显示名称",filename)?.trim()||filename;
-  const isImage=/\.(avif|gif|jpe?g|png|webp|svg)(?:\?|$)/i.test(url);
-  insertText(isImage?`\n![${label}](${url})\n`:`\n[${label}](${url})\n`);
-};
-icons();
+(function(){
+  const modal=document.querySelector("#upload-modal"),panel=modal.querySelector(".upload-panel"),dropZone=document.querySelector("#drop-zone"),fileInput=document.querySelector("#file-input"),statusTitle=document.querySelector("#upload-status-title"),statusDetail=document.querySelector("#upload-status-detail");
+  let uploading=false;
+  function openModal(){if(!current){toast("请先选择或新建一篇文章");return}modal.hidden=false;document.body.style.overflow="hidden";dropZone.focus()}
+  function closeModal(){if(uploading)return;modal.hidden=true;document.body.style.overflow="";panel.classList.remove("uploading")}
+  function setStatus(title,detail){statusTitle.textContent=title;statusDetail.textContent=detail}
+  function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+  async function waitForResult(requestId){for(let attempt=0;attempt<60;attempt++){await sleep(3000);try{return(await getContent(`${ROOT}/upload-results/${requestId}.json`)).data}catch(error){if(error.status!==404)throw error}}throw new Error("等待上传结果超时，请到仓库 Actions 查看运行状态")}
+  async function uploadToImageHost(file){if(!file||uploading)return;if(file.size>20*1024*1024){toast("文件不能超过 20 MB");return}uploading=true;panel.classList.add("uploading");setStatus("正在提交文件",`${file.name} · ${(file.size/1024).toFixed(1)} KB`);try{const requestId=`asset-${Date.now()}-${crypto.randomUUID().slice(0,8)}`,safeName=file.name.replace(/[^a-zA-Z0-9._-]+/g,"-")||"file";await request(`/repos/${OWNER}/${REPO}/contents/${ROOT}/.upload-queue/${requestId}--${safeName}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:`Queue blog asset: ${file.name}`,content:await fileToB64(file),branch:"main"})});setStatus("图床正在处理","GitHub Actions 已接管上传，请稍等...");const result=await waitForResult(requestId);if(result.status!=="success")throw new Error(result.message||"图床上传失败");const isImage=file.type.startsWith("image/")||/\.(avif|gif|jpe?g|png|webp|svg)$/i.test(file.name),label=file.name.replace(/[\[\]]/g,"");insertText(isImage?`\n![${label}](${result.url})\n`:`\n[下载 ${label}](${result.url})\n`);setStatus("上传完成",result.url);toast("已上传到包包图床并插入正文");await sleep(900);uploading=false;closeModal()}catch(error){setStatus("上传失败",error.message);toast(`上传失败：${error.message}`);uploading=false;setTimeout(()=>panel.classList.remove("uploading"),1800)}finally{fileInput.value=""}}
+  document.querySelector("#upload-file").onclick=openModal;document.querySelector("#upload-close").onclick=closeModal;modal.addEventListener("click",event=>{if(event.target===modal)closeModal()});dropZone.onclick=()=>fileInput.click();dropZone.onkeydown=event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();fileInput.click()}};fileInput.onchange=event=>uploadToImageHost(event.target.files[0]);
+  ["dragenter","dragover"].forEach(type=>dropZone.addEventListener(type,event=>{event.preventDefault();dropZone.classList.add("dragover")}));["dragleave","drop"].forEach(type=>dropZone.addEventListener(type,event=>{event.preventDefault();dropZone.classList.remove("dragover")}));dropZone.addEventListener("drop",event=>uploadToImageHost(event.dataTransfer.files[0]));
+  document.querySelector("#open-image-host").onclick=()=>window.open(IMAGE_HOST,"_blank","noopener");document.querySelector("#insert-image-url").onclick=()=>{if(!current){toast("请先选择或新建一篇文章");return}let url=prompt("粘贴图床返回的地址，例如 /file/xxx.png 或完整 URL")?.trim();if(!url)return;if(url.startsWith("/"))url=`https://image.baobao123.dpdns.org${url}`;if(!/^https?:\/\//i.test(url)){toast("链接格式不正确");return}const filename=decodeURIComponent(url.split("/").pop().split("?")[0]||"托管文件"),label=prompt("显示名称",filename)?.trim()||filename,isImage=/\.(avif|gif|jpe?g|png|webp|svg)(?:\?|$)/i.test(url);insertText(isImage?`\n![${label}](${url})\n`:`\n[下载 ${label}](${url})\n`)};
+  icons();
+})();

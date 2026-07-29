@@ -1,0 +1,69 @@
+name: Upload blog assets
+
+on:
+  push:
+    paths:
+      - "docs/.upload-queue/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: blog-asset-upload
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Upload queued files
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(docs/.upload-queue/*)
+          mkdir -p docs/upload-results
+
+          for file in "${files[@]}"; do
+            base="$(basename "$file")"
+            request_id="${base%%--*}"
+            original_name="${base#*--}"
+            result="docs/upload-results/${request_id}.json"
+
+            if response="$(curl --fail --silent --show-error --max-time 180 -F "file=@${file}" https://image.baobao123.dpdns.org/upload)"; then
+              src="$(printf '%s' "$response" | jq -r '.[0].src // empty')"
+              if [[ -n "$src" ]]; then
+                jq -n \
+                  --arg status "success" \
+                  --arg name "$original_name" \
+                  --arg src "$src" \
+                  --arg url "https://image.baobao123.dpdns.org${src}" \
+                  '{status:$status,name:$name,src:$src,url:$url}' > "$result"
+              else
+                jq -n --arg status "error" --arg message "图床返回中没有文件地址" \
+                  '{status:$status,message:$message}' > "$result"
+              fi
+            else
+              jq -n --arg status "error" --arg message "图床上传请求失败" \
+                '{status:$status,message:$message}' > "$result"
+            fi
+
+            git rm -f "$file"
+          done
+
+      - name: Commit upload results
+        shell: bash
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/upload-results
+          git commit -m "Process blog asset uploads"
+          git pull --rebase origin main
+          git push origin main

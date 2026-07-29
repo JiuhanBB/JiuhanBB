@@ -1,0 +1,21 @@
+(function(){
+  const toolbar=document.querySelector("#markdown-toolbar");
+  const area=document.querySelector("#content");
+  const articleTemplate=`## 开场\n\n用一两句话说明这篇文章要解决的问题。\n\n## 背景\n\n补充必要的上下文、环境和前置条件。\n\n## 实现过程\n\n### 第一步\n\n- 要点一\n- 要点二\n- 要点三\n\n> 这里可以放需要特别说明的内容。\n\n### 代码示例\n\n\`\`\`text\n在这里粘贴代码或命令\n\`\`\`\n\n## 结果\n\n说明最终结果，以及如何验证。\n\n## 总结\n\n记录结论和后续计划。\n`;
+  function replaceSelection(before,after,placeholder){const start=area.selectionStart,end=area.selectionEnd,selected=area.value.slice(start,end)||placeholder,text=before+selected+after;area.setRangeText(text,start,end,"end");area.focus();sync()}
+  function prefixLines(prefix,placeholder){const start=area.selectionStart,end=area.selectionEnd,selected=area.value.slice(start,end)||placeholder,text=selected.split("\n").map((line,index)=>typeof prefix==="function"?prefix(line,index):prefix+line).join("\n");area.setRangeText(text,start,end,"end");area.focus();sync()}
+  const commands={
+    bold:()=>replaceSelection("**","**","粗体文字"),
+    italic:()=>replaceSelection("*","*","斜体文字"),
+    heading:()=>prefixLines("## ","小节标题"),
+    paragraph:()=>replaceSelection("\n\n","\n\n","新段落内容"),
+    bullet:()=>prefixLines("- ","列表项一\n列表项二\n列表项三"),
+    ordered:()=>prefixLines((line,index)=>`${index+1}. ${line}`,"第一项\n第二项\n第三项"),
+    quote:()=>prefixLines("> ","引用内容"),
+    code:()=>{const language=prompt("代码语言，例如 js、go、bash；纯文本可留空","")?.trim()||"";replaceSelection(`\n\n\`\`\`${language}\n`,`\n\`\`\`\n\n`,"在这里粘贴代码")},
+    link:()=>{const url=prompt("链接地址","https://")?.trim();if(url)replaceSelection("[","]("+url+")","链接文字")},
+    divider:()=>insertText("\n\n---\n\n"),
+    template:()=>{if(area.value.trim()&&!confirm("在当前光标位置插入整篇文章模板？"))return;insertText(articleTemplate)}
+  };
+  toolbar.addEventListener("click",event=>{const button=event.target.closest("button[data-command]");if(button)commands[button.dataset.command]?.()});
+})();
