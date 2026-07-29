@@ -1,6 +1,7 @@
 (function(){
   const toolbar=document.querySelector("#markdown-toolbar"),media=document.querySelector(".media-tools"),area=document.querySelector("#content");
-  if(media&&toolbar){const image=media.querySelector("#upload-image"),file=media.querySelector("#upload-file");if(image)toolbar.append(image);if(file)toolbar.append(file);media.remove()}
+  function moveUploadButton(button,label){if(!button)return;[...button.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE).forEach(node=>node.remove());button.title=label;button.setAttribute("aria-label",label);toolbar.append(button)}
+  if(media&&toolbar){moveUploadButton(media.querySelector("#upload-image"),"图片");moveUploadButton(media.querySelector("#upload-file"),"文件");media.remove()}
   const articleTemplate=`## 开场\n\n用一两句话说明这篇文章要解决的问题。\n\n## 背景\n\n补充必要的上下文、环境和前置条件。\n\n## 实现过程\n\n### 第一步\n\n- 要点一\n- 要点二\n- 要点三\n\n> 这里可以放需要特别说明的内容。\n\n### 代码示例\n\n\`\`\`text\n在这里粘贴代码或命令\n\`\`\`\n\n## 结果\n\n说明最终结果，以及如何验证。\n\n## 总结\n\n记录结论和后续计划。\n`;
   function replaceSelection(before,after,placeholder){const start=area.selectionStart,end=area.selectionEnd,selected=area.value.slice(start,end)||placeholder,text=before+selected+after;area.setRangeText(text,start,end,"end");area.focus();sync()}
   function prefixLines(prefix,placeholder){const start=area.selectionStart,end=area.selectionEnd,selected=area.value.slice(start,end)||placeholder,text=selected.split("\n").map((line,index)=>typeof prefix==="function"?prefix(line,index):prefix+line).join("\n");area.setRangeText(text,start,end,"end");area.focus();sync()}
