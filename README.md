@@ -8,7 +8,7 @@
 
 <p>
   <a href="https://jiuhanbb.github.io/JiuhanBB/">
-    <img src="https://img.shields.io/badge/Blog-笔记-0F766E?style=flat-square" alt="Blog" />
+    <img src="https://img.shields.io/badge/Blog-久寒包包-0F766E?style=flat-square" alt="Blog" />
   </a>
   <a href="https://github.com/JiuhanBB?tab=repositories">
     <img src="https://img.shields.io/badge/Projects-GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="Projects" />
