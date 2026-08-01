@@ -7,8 +7,12 @@
 **Web 后端开发 · 逆向工程 · Android 开发**
 
 <p>
-  <a href="https://jiuhanbb.github.io/JiuhanBB/"><img src="https://img.shields.io/badge/Blog-jiuhanbb.github.io-0F766E?style=flat-square&logo=githubpages&logoColor=white" alt="Blog" /></a>
-  <a href="https://github.com/JiuhanBB?tab=repositories"><img src="https://img.shields.io/badge/Projects-GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="Projects" /></a>
+  <a href="https://jiuhanbb.github.io/JiuhanBB/">
+    <img src="https://img.shields.io/badge/Blog-笔记-0F766E?style=flat-square" alt="Blog" />
+  </a>
+  <a href="https://github.com/JiuhanBB?tab=repositories">
+    <img src="https://img.shields.io/badge/Projects-GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="Projects" />
+  </a>
   <img src="https://komarev.com/ghpvc/?username=JiuhanBB&style=flat-square&color=0F766E&label=PROFILE+VIEWS" alt="Profile views" />
 </p>
 
